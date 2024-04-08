@@ -13,24 +13,24 @@ public class Animatios : MonoBehaviour
 
     private void Update()
     {
-        CheckNumbersForAnim();
+        CheckKeyForAnim();
     }
 
-    private void CheckNumbersForAnim()
+    private void CheckKeyForAnim()
     {
         if (Input.GetKey(KeyCode.Space))
             animator.Play("Jump");
 
-        if (Input.GetKey(KeyCode.Alpha2))
+        if (Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.LeftShift))
             animator.Play("Run");
 
         if (Input.GetMouseButtonDown(0))
             animator.Play("Attack");
 
-        if (Input.GetKey(KeyCode.Alpha4))
+        if (Input.GetKey(KeyCode.E))
             animator.Play("Talking");
 
-        if (Input.GetKey(KeyCode.Alpha5))
+        if (Input.GetKey(KeyCode.Alpha1))
             animator.Play("Death");
     }
 }
