@@ -16,17 +16,8 @@ public class Animatios : MonoBehaviour
         CheckKeyForAnim();
     }
 
-    private void CheckKeyForAnim()
+    public void CheckKeyForAnim()
     {
-        if (Input.GetKey(KeyCode.Space))
-            animator.Play("Jump");
-
-        if (Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.LeftShift))
-            animator.Play("Run");
-
-        if (Input.GetMouseButtonDown(0))
-            animator.Play("Attack");
-
         if (Input.GetKey(KeyCode.E))
             animator.Play("Talking");
 
