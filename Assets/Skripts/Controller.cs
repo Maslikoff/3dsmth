@@ -6,23 +6,23 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class Controller : MonoBehaviour
 {
-    [SerializeField] private Animator animator;
-    [SerializeField] private Transform cam;
-    [SerializeField] private float speed = 6f;
-    [SerializeField] private float rotationSpeed = 10f;
-    [SerializeField] private float jumpForce = 12f;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float rotationSpeed;
+    [SerializeField] private float jumpForce;
+    [SerializeField] private new Transform camera;
 
+    private Quaternion _targetRotation;
     private Rigidbody _rigidbody;
-    private Vector3 moveDirection;
+    [SerializeField] private Animator _animator;
     private bool _isGrounded;
 
-    private void Start()
+    private void Awake()
     {
-        animator = GetComponent<Animator>();
         _rigidbody = GetComponent<Rigidbody>();
+        _animator = GetComponent<Animator>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         MovePlayer();
         JumpLogic();
@@ -33,27 +33,24 @@ public class Controller : MonoBehaviour
     {
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
-        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
 
-        if (direction.magnitude >= 0.1f)
+        float moveAmount = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
+
+        var moveInput = (new Vector3(horizontal, 0, vertical)).normalized;
+
+        var moveDir = camera.rotation * moveInput;
+
+        if (moveAmount > 0)
         {
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref rotationSpeed, 0.1f);
-            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+            transform.position += moveDir * moveSpeed * Time.deltaTime;
+            _targetRotation = Quaternion.LookRotation(moveDir);
+        }
 
-            Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-            _rigidbody.velocity = moveDir * speed;
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, _targetRotation, rotationSpeed * Time.deltaTime);
 
+        if (_isGrounded)
             if (horizontal != 0 || vertical != 0)
-                animator.Play("Run");
-            else
-                animator.Play("Idle");
-        }
-        else
-        {
-            _rigidbody.velocity = Vector3.zero; // Устанавливаем скорость равной нулю, если клавиши не нажаты
-            _rigidbody.angularVelocity = Vector3.zero;
-        }
+                _animator.Play("Run");
     }
 
     private void JumpLogic()
@@ -62,9 +59,8 @@ public class Controller : MonoBehaviour
         {
             if (_isGrounded)
             {
+                _animator.Play("Jump");
                 _rigidbody.velocity += Vector3.up * jumpForce;
-                //_rigidbody.AddForce(Vector3.up * jumpForce);
-                animator.Play("Jump");
             }
         }
     }
@@ -72,7 +68,7 @@ public class Controller : MonoBehaviour
     private void Attack()
     {
         if (Input.GetMouseButtonDown(0))
-            animator.Play("Attack");
+            _animator.Play("Attack");
     }
 
     void OnCollisionEnter(Collision collision)
